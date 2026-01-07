@@ -5,6 +5,7 @@ enum RadioMessage {
 }
 radio.onReceivedMessage(RadioMessage.CarKeepalive, function () {
     if (Connected == 0 && Occupied == 0) {
+        LastKeepalive = 50
         Connected = 1
         music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.InBackground)
         basic.showLeds(`
@@ -78,7 +79,7 @@ let Channel = 0
 basic.showNumber(Channel)
 radio.setGroup(40)
 music.play(music.stringPlayable("C E G - - - - - ", 500), music.PlaybackMode.InBackground)
-loops.everyInterval(10, function () {
+loops.everyInterval(50, function () {
     if (Connected == -1) {
     	
     } else if (Connected == 0) {
@@ -109,6 +110,7 @@ basic.forever(function () {
     } else if (Connected == 0) {
     	
     } else if (Connected == 1) {
+        radio.sendMessage(RadioMessage.ControllerKeepalive)
         basic.showLeds(`
             . . . . .
             . # . # .
@@ -116,6 +118,5 @@ basic.forever(function () {
             # . . . #
             . # # # .
             `)
-        radio.sendMessage(RadioMessage.ControllerKeepalive)
     }
 })
