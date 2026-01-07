@@ -110,20 +110,13 @@ basic.forever(function () {
     } else if (Connected == 0) {
     	
     } else if (Connected == 1) {
-        basic.showLeds(`
-            . . . . .
-            . # . # .
-            . . . . .
-            # . . . #
-            . # # # .
-            `)
         radio.sendMessage(RadioMessage.ControllerKeepalive)
-        if (input.buttonIsPressed(Button.A)) {
+        if (input.buttonIsPressed(Button.B)) {
             radio.sendString("Left")
         } else {
             radio.sendString("StopLeft")
         }
-        if (input.buttonIsPressed(Button.B)) {
+        if (input.buttonIsPressed(Button.A)) {
             radio.sendString("Right")
         } else {
             radio.sendString("StopRight")
