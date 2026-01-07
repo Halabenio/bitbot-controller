@@ -35,7 +35,7 @@ let Channel = 0
 basic.showNumber(Channel)
 radio.setGroup(40)
 music.play(music.stringPlayable("C E G - - - - - ", 500), music.PlaybackMode.InBackground)
-loops.everyInterval(25, function () {
+loops.everyInterval(10, function () {
     if (Connected == -1) {
     	
     } else if (Connected == 0) {
