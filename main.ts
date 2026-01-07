@@ -1,25 +1,21 @@
 enum RadioMessage {
     message1 = 49434,
-    CarKeepalive = 29201
+    CarKeepalive = 29201,
+    ControllerKeepalive = 30085
 }
-input.onButtonPressed(Button.A, function () {
-    radio.sendString("Test")
-})
-radio.onReceivedString(function (receivedString) {
-    if (receivedString == "CarKeepalive") {
-        if (Connected == -1) {
-        	
-        } else if (Connected == 0) {
-            Connected = 1
-            music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.InBackground)
-            basic.showLeds(`
-                . . . . .
-                . # . # .
-                . . . . .
-                # . . . #
-                . # # # .
-                `)
-        }
+radio.onReceivedMessage(RadioMessage.CarKeepalive, function () {
+    if (Connected == -1) {
+    	
+    } else if (Connected == 0) {
+        Connected = 1
+        music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.InBackground)
+        basic.showLeds(`
+            . . . . .
+            . # . # .
+            . . . . .
+            # . . . #
+            . # # # .
+            `)
     }
 })
 input.onGesture(Gesture.Shake, function () {
@@ -67,6 +63,6 @@ basic.forever(function () {
             # . . . #
             . # # # .
             `)
-        radio.sendString("Test")
+        radio.sendMessage(RadioMessage.ControllerKeepalive)
     }
 })
