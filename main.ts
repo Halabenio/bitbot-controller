@@ -6,21 +6,27 @@ enum RadioMessage {
 radio.onReceivedMessage(RadioMessage.CarKeepalive, function () {
     if (Connected == 0 && Occupied == 0) {
         LastKeepalive = 200
-        Connected = 1
-        music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.InBackground)
-        basic.showLeds(`
-            . . . . .
-            . # . # .
-            . . . . .
-            # . . . #
-            . # # # .
-            `)
+        Connected = 2
+        basic.pause(100)
+        if (Connected == 0 && Occupied == 0) {
+            basic.showLeds(`
+                . . . . .
+                . # . # .
+                . . . . .
+                # . . . #
+                . # # # .
+                `)
+            Connected = 1
+            music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.UntilDone)
+        }
     } else if (Connected == 1) {
         LastKeepalive = 200
     }
 })
 radio.onReceivedMessage(RadioMessage.ControllerKeepalive, function () {
-    Occupied = 1
+    if (Connected == 1) {
+        Connected = 0
+    }
 })
 function ChangeFrame () {
     ConnectingFrame += 1
@@ -48,7 +54,7 @@ function ChangeFrame () {
             . . . . .
             . # # . .
             `)
-    } else if (ConnectingFrame == 4) {
+    } else if (ConnectingFrame >= 4) {
         basic.showLeds(`
             . # # . .
             . . . . .
@@ -62,8 +68,6 @@ function ChangeFrame () {
 input.onGesture(Gesture.Shake, function () {
     if (Connected == -1) {
         Connected = 0
-    } else if (Connected == 0) {
-        Connected = -1
     }
 })
 input.onLogoEvent(TouchButtonEvent.Pressed, function () {
@@ -79,25 +83,6 @@ let Channel = 0
 basic.showNumber(Channel)
 radio.setGroup(40)
 music.play(music.stringPlayable("C E G - - - - - ", 500), music.PlaybackMode.InBackground)
-loops.everyInterval(50, function () {
-    if (Connected == -1) {
-    	
-    } else if (Connected == 0) {
-        if (Channel < 9) {
-            Channel += 1
-        } else {
-            Channel = 0
-        }
-        Occupied = 0
-        radio.setGroup(40 + Channel)
-        ChangeFrame()
-    } else if (Connected == 1) {
-        LastKeepalive += -1
-        if (LastKeepalive <= 0) {
-            Connected = -1
-        }
-    }
-})
 basic.forever(function () {
     if (Connected == -1) {
         basic.showLeds(`
@@ -120,6 +105,25 @@ basic.forever(function () {
             radio.sendString("Right")
         } else {
             radio.sendString("StopRight")
+        }
+    }
+})
+loops.everyInterval(100, function () {
+    if (Connected == -1) {
+    	
+    } else if (Connected == 0) {
+        if (Channel < 9) {
+            Channel += 1
+        } else {
+            Channel = 0
+        }
+        Occupied = 0
+        radio.setGroup(40 + Channel)
+        ChangeFrame()
+    } else if (Connected == 1) {
+        LastKeepalive += -1
+        if (LastKeepalive <= 0) {
+            Connected = -1
         }
     }
 })
