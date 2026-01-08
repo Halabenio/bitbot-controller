@@ -4,67 +4,12 @@ enum RadioMessage {
     ControllerKeepalive = 30085
 }
 radio.onReceivedMessage(RadioMessage.CarKeepalive, function () {
-    if (Connected == 0 && Occupied == 0) {
-        LastKeepalive = 200
-        Connected = 2
-        basic.pause(100)
-        if (Connected == 0 && Occupied == 0) {
-            basic.showLeds(`
-                . . . . .
-                . # . # .
-                . . . . .
-                # . . . #
-                . # # # .
-                `)
-            Connected = 1
-            music.play(music.stringPlayable("D E G A - - - - ", 500), music.PlaybackMode.UntilDone)
-        }
-    } else if (Connected == 1) {
-        LastKeepalive = 200
-    }
+    CarKeepalive = 1
+    LastKeepalive = 25
 })
 radio.onReceivedMessage(RadioMessage.ControllerKeepalive, function () {
-    if (Connected == 1) {
-        Connected = 0
-    }
+    ControllerKeepalive = 1
 })
-function ChangeFrame () {
-    ConnectingFrame += 1
-    if (ConnectingFrame == 1) {
-        basic.showLeds(`
-            . . . . .
-            # . . . .
-            # . . . #
-            . . . . #
-            . . . . .
-            `)
-    } else if (ConnectingFrame == 2) {
-        basic.showLeds(`
-            . # # . .
-            . . . . .
-            . . . . .
-            . . . . .
-            . . # # .
-            `)
-    } else if (ConnectingFrame == 3) {
-        basic.showLeds(`
-            . . # # .
-            . . . . .
-            . . . . .
-            . . . . .
-            . # # . .
-            `)
-    } else if (ConnectingFrame >= 4) {
-        basic.showLeds(`
-            . # # . .
-            . . . . .
-            . . . . .
-            . . . . .
-            . . # # .
-            `)
-        ConnectingFrame = 0
-    }
-}
 input.onGesture(Gesture.Shake, function () {
     if (Connected == -1) {
         Connected = 0
@@ -73,12 +18,13 @@ input.onGesture(Gesture.Shake, function () {
 input.onLogoEvent(TouchButtonEvent.Pressed, function () {
     Connected = -1
 })
-let ConnectingFrame = 0
 let LastKeepalive = 0
-let Occupied = 0
+let ControllerKeepalive = 0
+let CarKeepalive = 0
 let Connected = 0
 Connected = -1
-Occupied = 0
+CarKeepalive = 0
+ControllerKeepalive = 0
 let Channel = 0
 basic.showNumber(Channel)
 radio.setGroup(40)
@@ -93,7 +39,27 @@ basic.forever(function () {
             # . # . #
             `)
     } else if (Connected == 0) {
-    	
+        if (Channel < 9) {
+            Channel += 1
+        } else {
+            Channel = 0
+        }
+        radio.setGroup(40 + Channel)
+        basic.showNumber(Channel)
+        CarKeepalive = 0
+        ControllerKeepalive = 0
+        basic.pause(500)
+        if (CarKeepalive == 1 && ControllerKeepalive == 0) {
+            Connected = 1
+            basic.showLeds(`
+                . . . . .
+                . # . # .
+                . . . . .
+                # . . . #
+                . # # # .
+                `)
+            music.play(music.stringPlayable("- D E C A - - - ", 500), music.PlaybackMode.UntilDone)
+        }
     } else if (Connected == 1) {
         radio.sendMessage(RadioMessage.ControllerKeepalive)
         if (input.buttonIsPressed(Button.B)) {
@@ -106,24 +72,7 @@ basic.forever(function () {
         } else {
             radio.sendString("StopRight")
         }
-    }
-})
-loops.everyInterval(100, function () {
-    if (Connected == -1) {
+    } else if (Connected == 2) {
     	
-    } else if (Connected == 0) {
-        if (Channel < 9) {
-            Channel += 1
-        } else {
-            Channel = 0
-        }
-        Occupied = 0
-        radio.setGroup(40 + Channel)
-        ChangeFrame()
-    } else if (Connected == 1) {
-        LastKeepalive += -1
-        if (LastKeepalive <= 0) {
-            Connected = -1
-        }
     }
 })
