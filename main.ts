@@ -22,9 +22,10 @@ input.onButtonPressed(Button.AB, function () {
         flashstorage.put("Gateway", convertToText(SettingNumber))
         radio.setGroup(Gateway * 10)
         serial.writeNumber(Gateway * 10)
+        uid = randint(0, 9999999)
         Status = 2
         bitbot.setLedColor(0x0000FF)
-        radio.sendValue("ContWait", 0)
+        radio.sendValue("ContWait", uid)
     } else if (Status == 2) {
         Status = 1
         SettingNumber = parseFloat(flashstorage.getOrDefault("Gateway", "0"))
@@ -83,6 +84,7 @@ let A = ""
 let NoCar = false
 let Address = 0
 let SettingNumber = 0
+let uid = 0
 let Gateway = 0
 let Status = 0
 Status = 0
@@ -97,17 +99,15 @@ basic.showLeds(`
 if (flashstorage.getOrDefault("Gateway", "NotSet") != "NotSet") {
     Status = 2
     Gateway = parseFloat(flashstorage.getOrDefault("Gateway", "0"))
+    uid = randint(0, 9999999)
     radio.setGroup(Gateway * 10)
-    radio.sendValue("ContWait", 0)
+    radio.sendValue("ContWait", uid)
 }
 loops.everyInterval(10000, function () {
     if (NoCar) {
         radio.setGroup(Gateway * 10)
         radio.sendValue("NoCar", Address)
     }
-})
-loops.everyInterval(500, function () {
-	
 })
 basic.forever(function () {
     if (Status == 5) {
@@ -126,6 +126,6 @@ basic.forever(function () {
 })
 loops.everyInterval(5000, function () {
     if (Status == 2 || Status == 4) {
-        radio.sendValue("ContWait", 0)
+        radio.sendValue("ContWait", uid)
     }
 })
